@@ -5,11 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:dev": "webpack --config webpack.dev.js --mode development",
-    "build:prod": "webpack --config webpack.prod.js --mode production",
-    "start": "node ./index.js",
-    "start:dev": "node ./dev-build/main.js",
-    "start:prod": "node ./prod-build/main.js"
+    "start": "node ./index.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +18,8 @@
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "babel-loader": "^9.1.3",
+    "expect": "^29.7.0",
+    "mocha": "^10.2.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-node-externals": "^3.0.0"
