@@ -1,6 +1,6 @@
 const express = require("express")
 const cors = require("cors")
-const http = require("https");
+const http = require("http");
 const app = express()
 const { Server } = require("socket.io")
 app.use(cors({
@@ -14,6 +14,7 @@ const io = new Server(server, {
     cors: {
         origin: "https://6527e16b4e65c804bea4ba83--luxury-syrniki-6547b4.netlify.app",
         methods: ["GET", "POST"],
+        credentials: true
     }
 }
 );
