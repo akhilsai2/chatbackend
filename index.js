@@ -12,16 +12,18 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://6527e16b4e65c804bea4ba83--luxury-syrniki-6547b4.netlify.app",
+        // origin: "https://6527e16b4e65c804bea4ba83--luxury-syrniki-6547b4.netlify.app",
+        origin: "http://localhost:3000",
         methods: ["GET", "POST"],
         credentials: true
     }
 }
 );
-const userConnection = []
+let userConnection = []
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.handshake.auth.username}`);
     socket.join(socket.id)
+    socket.emit("userID", socket.id)
 
     userConnection.push({ userId: socket.id, userName: socket.handshake.auth.username })
     console.log(userConnection)
@@ -37,6 +39,9 @@ io.on("connection", (socket) => {
     });
     socket.on("disconnect", () => {
         console.log("User Disconnected", socket.handshake.auth.username);
+        userConnection = []
+        console.log(userConnection)
+
     });
     console.log(userConnection)
 
