@@ -45,8 +45,7 @@ app.post('/login', async function (req, res) {
         } else {
             await userdata.findOne({ email: req.body.email })
                 .then(users => {
-                    // console.log(users)
-                    // console.log(req.body.password)
+
                     if (users) {
                         if (users.password === req.body.password) {
 
@@ -70,7 +69,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://65291bcc1d133d1cd259f772--scintillating-crisp-25e6ce.netlify.app",
+        origin: "https://fascinating-paletas-e76638.netlify.app/",
         // origin: "http://localhost:3000",
         methods: ["GET", "POST"],
         credentials: true
