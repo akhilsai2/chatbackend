@@ -5,9 +5,10 @@ const jwtToken = require("jsonwebtoken")
 const MongoClient = require('mongodb').MongoClient;
 const ServerApiVersion = require("mongodb").ServerApiVersion
 const app = express()
+const dotenv = require("dotenv").config()
 const { Server } = require("socket.io")
 
-const client = new MongoClient('mongodb+srv://saiakil456:saiakhil564@cluster0.6ng9cuv.mongodb.net/?retryWrites=true&w=majority',
+const client = new MongoClient(process.env.MONGODB_URL,
     {
         serverApi: {
             version: ServerApiVersion.v1,
