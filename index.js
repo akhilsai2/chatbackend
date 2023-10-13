@@ -1,13 +1,70 @@
 const express = require("express")
 const cors = require("cors")
 const http = require("http");
+const jwtToken = require("jsonwebtoken")
+const MongoClient = require('mongodb').MongoClient;
+const ServerApiVersion = require("mongodb").ServerApiVersion
 const app = express()
 const { Server } = require("socket.io")
+
+const client = new MongoClient('mongodb+srv://saiakil456:saiakhil564@cluster0.6ng9cuv.mongodb.net/?retryWrites=true&w=majority',
+    {
+        serverApi: {
+            version: ServerApiVersion.v1,
+            strict: true,
+            deprecationErrors: true,
+        }
+    });
+
 app.use(cors({
     origin: "*",
     credentials: true
 }))
 app.use(express.json())
+app.get("/userdata", async function (req, res) {
+    try {
+        await client.connect();
+        const database = client.db('AppUsers');
+        const userdata = database.collection('loginusers');
+        const users = await userdata.find().toArray()
+        res.send(users)
+        // console.log(users)
+    } finally {
+        await client.close();
+    }
+})
+app.post('/login', async function (req, res) {
+    try {
+        await client.connect();
+        const database = client.db('AppUsers');
+        const userdata = database.collection('loginusers');
+        if (req.body.name) {
+            await userdata.insertOne(req.body)
+            res.send("Created Successfully")
+        } else {
+            await userdata.findOne({ email: req.body.email })
+                .then(users => {
+                    // console.log(users)
+                    // console.log(req.body.password)
+                    if (users) {
+                        if (users.password === req.body.password) {
+
+                            res.send("Success")
+                        } else {
+                            res.send("Invalid Credentials")
+                        }
+
+                    } else {
+                        res.json("No Record Existed")
+                    }
+                })
+
+        }
+    } finally {
+        await client.close();
+    }
+
+});
 const server = http.createServer(app)
 
 const io = new Server(server, {
@@ -40,8 +97,6 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("User Disconnected", socket.handshake.auth.username);
         userConnection = []
-        console.log(userConnection)
-
     });
     console.log(userConnection)
 
