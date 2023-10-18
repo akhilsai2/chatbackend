@@ -134,7 +134,7 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
         credentials: true
     },
-    connectionStateRecovery: {}
+    // connectionStateRecovery: {}
 }
 );
 let userConnection = []
