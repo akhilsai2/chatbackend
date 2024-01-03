@@ -102,7 +102,6 @@ app.post('/login', async function (req, res) {
                             if (users.password === req.body.password) {
                                 const payload = { username: users.name }
                                 const jwt = jwtToken.sign(payload, "My Token")
-                                // res.json({ jwt: jwt, status: 200, user: users.name })
                                 result = { jwt: jwt, status: 200, user: users.name }
 
                                 // res.send("login Successfull")
@@ -142,6 +141,31 @@ app.post("/deletemsg", async function (req, res) {
     const data = await deleteItem()
     res.send("deleted")
 })
+
+
+app.get("/serviceType", async function (req, res) {
+    async function ServiceType() {
+        let result = []
+        try {
+            await client.connect()
+            const database = client.db("AppUsers")
+            let userServiceData = database.collection("servicestore")
+            const services = await userServiceData.find().toArray()
+            for await (const item of services) {
+                result.push(item)
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+        return result
+    }
+
+
+    const data = await ServiceType()
+    res.send(data)
+})
+
 const server = http.createServer(app)
 
 const io = new Server(server, {
