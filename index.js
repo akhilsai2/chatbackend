@@ -19,6 +19,7 @@ const client = new MongoClient(process.env.MONGODB_URL,
 
 app.use(cors({
     origin: "*",
+    methods: ["GET", "POST"],
     credentials: true
 }))
 app.use(express.json())
@@ -92,7 +93,7 @@ app.post('/login', async function (req, res) {
             if (req.body.name) {
                 await userdata.insertOne(req.body)
                 await usermessagedata.insertOne({ user: req.body.name, unseen_msg: [], seen_msg: [] })
-                res.send("Created Successfully")
+                res.send({ statusText: "Created Successfully", status: 200 })
             } else {
                 await userdata.updateOne({ email: req.body.email }, [{ $set: { "active": true } }])
                 await userdata.findOne({ email: req.body.email })
@@ -103,6 +104,8 @@ app.post('/login', async function (req, res) {
                                 const jwt = jwtToken.sign(payload, "My Token")
                                 // res.json({ jwt: jwt, status: 200, user: users.name })
                                 result = { jwt: jwt, status: 200, user: users.name }
+
+                                // res.send("login Successfull")
                             } else {
                                 result = "invalid Crenditials"
                             }
@@ -121,16 +124,31 @@ app.post('/login', async function (req, res) {
     }
     const data = await login()
     res.send(data)
-
-
-
 });
+
+app.post("/deletemsg", async function (req, res) {
+    async function deleteItem() {
+        try {
+            await client.connect()
+            const database = client.db("AppUsers")
+            let usermessagedata = database.collection("messagestore")
+            const users = await usermessagedata.find().toArray()
+            const users_unseen_msg = users.filter((x) => x.user === req.body.name)[0].unseen_msg.filter((x) => x.FromUser !== req.body.FromUser)
+            await usermessagedata.updateOne({ user: req.body.name }, { $set: { "unseen_msg": users_unseen_msg } })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    const data = await deleteItem()
+    res.send("deleted")
+})
 const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://652fcafb6676862410e1468e--poetic-flan-6ab540.netlify.app",
+        // origin: "https://652fcafb6676862410e1468e--poetic-flan-6ab540.netlify.app",
         // origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -143,7 +161,7 @@ io.on("connection", (socket) => {
     socket.join(socket.id)
     socket.emit("userID", socket.id)
     userConnection.push({ userId: socket.id, userName: socket.handshake.auth.username })
-    // console.log(userConnection)
+    console.log(userConnection)
     socket.on("message", async ({ content, sender, receiver }) => {
         async function getOnlineMessage() {
             try {
@@ -157,28 +175,35 @@ io.on("connection", (socket) => {
                         }
                     }
                 })
-                const Receiver = userConnection.filter((x) => x.userName === receiver)[0].userId
-                const senderUser = userConnection.filter((x) => x.userName === sender)[0].userId
-                socket.to(Receiver).to(Receiver).emit("message", {
-                    content,
-                    from: senderUser,
-                    to: Receiver,
-                });
-
-                socket.emit("chatMessage", { content, ChatFrom: sender })
+                await usermessagedata.updateOne({ user: sender }, {
+                    $push: {
+                        seen_msg: {
+                            FromUser: sender, ToUser: receiver, messages: content
+                        }
+                    }
+                })
             } catch (err) {
                 console.log(err)
             }
         }
+        try {
+            const Receiver = userConnection.filter((x) => x.userName === receiver)[0].userId
+            const senderUser = userConnection.filter((x) => x.userName === sender)[0].userId
+            socket.to(Receiver).to(Receiver).emit("message", {
+                content,
+                from: senderUser,
+                to: Receiver,
+            });
+
+            socket.emit("chatMessage", { content, ChatFrom: sender })
+        } catch (err) {
+            console.log(err)
+        }
         const data = await getOnlineMessage()
-
     });
-    // socket.on("chatConnect", ({ receiver,sender }) => {
 
-
-    // })
     socket.on("backUp", ({ content }) => {
-        socket.emit("chatMessage", { content })
+        socket.emit("message", { content })
     })
     socket.on("offline", async ({ content: message, sender, receiver }, req, res) => {
         async function getOfflineMessage() {
@@ -202,10 +227,10 @@ io.on("connection", (socket) => {
     })
     socket.on("disconnect", () => {
         console.log("User Disconnected", socket.handshake.auth.username);
-        userConnection = []
-        // userConnection.filter((x) => x.username !== socket.handshake.auth.username)
+        // userConnection = []
+        userConnection = userConnection.filter((x) => x.userName !== socket.handshake.auth.username)
+        // console.log(userConnection)
     });
-    // console.log(userConnection)
 
 
 });
