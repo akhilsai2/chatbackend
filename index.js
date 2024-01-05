@@ -32,10 +32,10 @@ app.use(cors({
 }))
 app.use(express.json())
 
-app.get("/generateImg", async function (req, res) {
+app.post("/generateImg", async function (req, res) {
     async function getGenerated() {
 
-        const image = await openai.images.generate({ model: "dall-e-3", prompt: `${res.body.text}` })
+        const image = await openai.images.generate({ model: "dall-e-3", prompt: `${req.body.text}` })
         return image.data
     }
     const result = await getGenerated()
