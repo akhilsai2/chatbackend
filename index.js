@@ -1,3 +1,4 @@
+const OpenAI = require("openai")
 const express = require("express")
 const cors = require("cors")
 const http = require("http");
@@ -7,6 +8,13 @@ const ServerApiVersion = require("mongodb").ServerApiVersion
 const app = express()
 const dotenv = require("dotenv").config()
 const { Server } = require("socket.io")
+
+const openai = new OpenAI({
+    organization: 'org-WCdSqD7lU0BLmUNEsw7rcYb9',
+    apiKey: "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"
+});
+
+
 
 const client = new MongoClient(process.env.MONGODB_URL,
     {
@@ -23,6 +31,16 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json())
+
+app.get("/generateImg", async function (req, res) {
+    async function getGenerated() {
+
+        const image = await openai.images.generate({ model: "dall-e-3", prompt: `${res.body.text}` })
+        return image.data
+    }
+    const result = await getGenerated()
+    res.send(result)
+})
 
 app.get("/userdata", async function (req, res) {
     async function getuserdata() {
