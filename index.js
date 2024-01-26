@@ -1,4 +1,4 @@
-const OpenAI = require("openai")
+const { Configuration, OpenAIApi, OpenAI } = require("openai")
 const express = require("express")
 const cors = require("cors")
 const http = require("http");
@@ -13,6 +13,11 @@ const openai = new OpenAI({
     organization: 'org-WCdSqD7lU0BLmUNEsw7rcYb9',
     apiKey: "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"
 });
+
+// const configuration = new Configuration({
+//     apiKey: "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",
+// });
+// const openai = new OpenAIApi(configuration);
 
 
 
@@ -35,7 +40,7 @@ app.use(express.json())
 app.post("/generateImg", async function (req, res) {
     async function getGenerated() {
 
-        const image = await openai.images.generate({ model: "dall-e-3", prompt: `${req.body.text}` })
+        const image = await openai.images.generate({ model: "dall-e-3", prompt: req.body.text, n: 2, size: "256x256" })
         return image.data
     }
     const result = await getGenerated()
@@ -168,10 +173,7 @@ app.get("/serviceType", async function (req, res) {
             await client.connect()
             const database = client.db("AppUsers")
             let userServiceData = database.collection("servicestore")
-            const services = await userServiceData.find().toArray()
-            for await (const item of services) {
-                result.push(item)
-            }
+            await userServiceData.insertOne(req.body)
 
         } catch (err) {
             console.log(err)
@@ -181,7 +183,26 @@ app.get("/serviceType", async function (req, res) {
 
 
     const data = await ServiceType()
-    res.send(data)
+    res.send("succefully enter")
+})
+
+app.post("/adduserdata", async function (req, res) {
+    async function AddingShopAddress() {
+        let result = []
+        try {
+            await client.connect()
+            const database = client.db("AppUsers")
+            let userServiceData = database.collection("servicestore")
+            console.log(req.body)
+            await userServiceData.insertOne(req.body)
+
+        } catch (err) {
+            console.log(err)
+        }
+        return result
+    }
+    await AddingShopAddress()
+    res.send("successfully submitted")
 })
 
 const server = http.createServer(app)
