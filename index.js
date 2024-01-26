@@ -168,7 +168,7 @@ app.post("/deletemsg", async function (req, res) {
 
 app.get("/serviceType", async function (req, res) {
     async function ServiceType() {
-
+        let result = []
         try {
             await client.connect()
             const database = client.db("AppUsers")
@@ -178,17 +178,16 @@ app.get("/serviceType", async function (req, res) {
         } catch (err) {
             console.log(err)
         }
-
+        return result
     }
 
 
-    await ServiceType()
-    res.send("successfully enter")
+    const data = await ServiceType()
+    res.send("succefully enter")
 })
 
 app.post("/adduserdata", async function (req, res) {
     async function AddingShopAddress() {
-        let result = []
         try {
             await client.connect()
             const database = client.db("AppUsers")
@@ -199,7 +198,6 @@ app.post("/adduserdata", async function (req, res) {
         } catch (err) {
             console.log(err)
         }
-        return result
     }
     await AddingShopAddress()
     res.send("successfully submitted")
