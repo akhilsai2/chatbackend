@@ -194,7 +194,7 @@ app.post("/adduserdata", async function (req, res) {
             const database = client.db("AppUsers")
             let userServiceData = database.collection("servicestore")
             console.log(req.body)
-            await userServiceData.insertOne(req.body)
+            await userServiceData.insert(req.body)
 
         } catch (err) {
             console.log(err)
