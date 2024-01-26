@@ -192,7 +192,7 @@ app.post("/adduserdata", async function (req, res) {
         try {
             await client.connect()
             const database = client.db("AppUsers")
-            let userServiceData = database.collection("servicestore")
+            let userServiceData = database.collection("messagestore")
             console.log(req.body)
             await userServiceData.insert(req.body)
 
