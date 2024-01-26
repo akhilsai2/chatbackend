@@ -173,7 +173,7 @@ app.get("/serviceType", async function (req, res) {
             await client.connect()
             const database = client.db("AppUsers")
             let userServiceData = database.collection("servicestore")
-            await userServiceData.insertOne(req.body)
+            await userServiceData.insertOne({ ...req.body })
 
         } catch (err) {
             console.log(err)
