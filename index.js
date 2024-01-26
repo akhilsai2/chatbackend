@@ -36,6 +36,7 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json())
+app.use(express.limit(100000000))
 
 app.post("/generateImg", async function (req, res) {
     async function getGenerated() {
