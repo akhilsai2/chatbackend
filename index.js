@@ -7,7 +7,8 @@ const MongoClient = require('mongodb').MongoClient;
 const ServerApiVersion = require("mongodb").ServerApiVersion
 const app = express()
 const dotenv = require("dotenv").config()
-const { Server } = require("socket.io")
+const { Server } = require("socket.io");
+const { ObjectId } = require("mongodb");
 
 const openai = new OpenAI({
     organization: 'org-WCdSqD7lU0BLmUNEsw7rcYb9',
@@ -174,7 +175,7 @@ app.get("/serviceType", async function (req, res) {
             const database = client.db("AppUsers")
             let userServiceData = database.collection("servicestore")
             const services = await userServiceData.find().toArray()
-            await services.insertOne([...services, { ...req.body }])
+            await services.insertOne([...services, { id: ObjectId(), ...req.body }])
 
         } catch (err) {
             console.log(err)
