@@ -35,8 +35,7 @@ app.use(cors({
     methods: ["GET", "POST"],
     credentials: true
 }))
-app.use(express.json())
-app.use(express.limit(100000))
+app.use(express.json({ limit: "50mb" }))
 
 app.post("/generateImg", async function (req, res) {
     async function getGenerated() {
